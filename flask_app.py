@@ -1,4 +1,4 @@
-from flask import Flask, request, abort 
+from flask import (Flask, request, abort , render_template)
 
 from linebot.v3 import (           
     WebhookHandler      #主要溝通的角色   
@@ -37,6 +37,11 @@ if channel_access_token is None:
     
 handler = WebhookHandler(channel_secret)
 configuration = Configuration(access_token=channel_access_token)
+#測試用，確定webhook server 有連通
+@app.route("/") # 裝飾器: 根目錄要做啥事
+@app.route("/name/<string:username>")
+def say_hello_world(username=""):
+    return render_template("hello.html", name=username)
 
 
 #設計一個callback的路由，提供給Line官方後臺去呼叫
@@ -67,7 +72,7 @@ def callback():
 #符合兩個條件的事件，會被hamdle_message 所處理
 @handler.add(MessageEvent, message=TextMessageContent)
 def handle_message(event):
-    with ApiClient(configuration) as api_client: #限定api_client在下方程式使用完後消失，其他funsion不會出現
+    with ApiClient(configuration) as api_client: #限定api_client在下方程式使用完後消失，其他function不會出現
         line_bot_api = MessagingApi(api_client)
         line_bot_api.reply_message_with_http_info(
             ReplyMessageRequest(
@@ -77,4 +82,4 @@ def handle_message(event):
         )
 
 if __name__ == "__main__":
-    app.run()
+    app.run(debug=True)
