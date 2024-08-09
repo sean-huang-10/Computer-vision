@@ -23,7 +23,7 @@ from linebot.v3.webhooks import (
 )
 from handle_keys import get_secret_and_token
 from openai_api import chat_with_chatgpt
-import os
+import os,sys
 app = Flask(__name__)
 
 def get_secret_and_token():

@@ -3,12 +3,14 @@ import os
 
 def chat_with_chatgpt(user_message, openai_api_key):
     client = OpenAI(api_key=openai_api_key)
+    
+    message = user_message + '請用有感情的方式回答一句話就好'
 #完成一段對話
     chat_completion = client.chat.completions.create(
      messages=[
         {
             "role": "user",
-            "content": user_message + '請用有感情的方式回答一句話就好'
+            "content": user_message ,
         }
     ],
             model="gpt-3.5-turbo",
