@@ -8,7 +8,7 @@ def chat_with_chatgpt(user_message, openai_api_key):
      messages=[
         {
             "role": "user",
-            "content": user_message,
+            "content": user_message + '請用有感情的方式回答一句話就好'
         }
     ],
             model="gpt-3.5-turbo",
