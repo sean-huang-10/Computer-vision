@@ -22,7 +22,8 @@ from linebot.v3.webhooks import (
     TextMessageContent # 使用者傳過來的資料格式
 )
 from handle_keys import get_secret_and_token
-
+from openai_api import chat_with_chatgpt
+import os
 app = Flask(__name__)
 
 def get_secret_and_token():
@@ -39,7 +40,7 @@ def get_secret_and_token():
         print('Specify LINEBOT_ACCESS_TOKEN as environment variable.')
         sys.exit(1)
     return {
-        'LINEBOT_SECRET_KEY':channel_access_token,
+        'LINEBOT_SECRET_KEY':channel_secret,
         'LINEBOT_ACCESS_TOKEN':channel_access_token
     }
 keys = get_secret_and_token()
@@ -80,13 +81,17 @@ def handle_message(event):
 # eg. MessageEvent 代表使用者單純傳訊息的事件
 # TextMessageContent 代表使用者傳輸的訊息內容是文字
 # 符合兩個條件的事件，會被handle_message 所處理
+    user_message = event.message.text #使用者傳的訊息
+    api_key = os.getenv("OPENAI_API_KEY", None)
+    response = chat_with_chatgpt(user_message, api_key )
+
     with ApiClient(configuration) as api_client:
         line_bot_api = MessagingApi(api_client)
         line_bot_api.reply_message_with_http_info(
             ReplyMessageRequest(
                 reply_token=event.reply_token,
                 messages=[
-                    TextMessage(text=event.message.text)
+                    TextMessage(text=response)
                 ]
             )
         )
