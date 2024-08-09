@@ -40,6 +40,7 @@ configuration = Configuration(access_token=channel_access_token)
 #測試用，確定webhook server 有連通
 @app.route("/") # 裝飾器: 根目錄要做啥事
 @app.route("/name/<string:username>")
+
 def say_hello_world(username=""):
     return render_template("hello.html", name=username)
 
