@@ -17,6 +17,8 @@ def get_secret_and_token():
         print('Specify OPEN_API_KEY as environment variable.')
         sys.exit(1)    
     return {
-        'LINEBOT_SECRET_KEY':channel_access_token,
-        'LINEBOT_ACCESS_TOKEN':channel_access_token
+        'LINEBOT_SECRET_KEY':channel_secret,
+        'LINEBOT_ACCESS_TOKEN':channel_access_token,
+        "OPENAI_API_KEY":openai_api_key
+        
     }

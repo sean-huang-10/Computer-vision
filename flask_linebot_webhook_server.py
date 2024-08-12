@@ -25,24 +25,6 @@ from handle_keys import get_secret_and_token
 from openai_api import chat_with_chatgpt
 import os,sys
 app = Flask(__name__)
-
-def get_secret_and_token():
-    # 1. 先到Line Developer Console，把 Channel Secret & Channel Access Token複製起來
-# 2. 把這兩個密文，存到環境變數內；工具列搜尋<環境變數>，新增兩個環境變數，並且把值貼上去
-# 3. 按下確定儲存，要記得你的變數名稱，這些資訊只會存在你當前使用的電腦裡。
-# 4. 透過以下程式碼，取得環境變數儲存的對應數值。
-    channel_secret = os.getenv('LINEBOT_SECRET_KEY', None)
-    channel_access_token = os.getenv('LINEBOT_ACCESS_TOKEN', None)
-    if channel_secret is None:
-        print('Specify LINEBOT_SECRET_KEY as environment variable.')
-        sys.exit(1)
-    if channel_access_token is None:
-        print('Specify LINEBOT_ACCESS_TOKEN as environment variable.')
-        sys.exit(1)
-    return {
-        'LINEBOT_SECRET_KEY':channel_secret,
-        'LINEBOT_ACCESS_TOKEN':channel_access_token
-    }
 keys = get_secret_and_token()
 handler = WebhookHandler(keys['LINEBOT_SECRET_KEY'])
 configuration = Configuration(access_token=keys['LINEBOT_ACCESS_TOKEN'])
@@ -81,9 +63,11 @@ def handle_message(event):
 # eg. MessageEvent 代表使用者單純傳訊息的事件
 # TextMessageContent 代表使用者傳輸的訊息內容是文字
 # 符合兩個條件的事件，會被handle_message 所處理
-    user_message = event.message.text #使用者傳的訊息
-    api_key = os.getenv("OPENAI_API_KEY", None)
-    response = chat_with_chatgpt(user_message, api_key )
+    user_id = event.source.user_id  #使用者id
+   # print("User ID",user_id)
+    user_message = event.message.text #使用者傳的訊息{"destination":"Uc474244ed30fb68a4a346524b727e811","events":[{"type":"message","message":{"type":"text","id":"521097010611749041","quoteToken":"UMQ2xwhuefnKBNM5KpYA9Ku76ehiAqzvpguZvvJOtv_69nPiliF_5ezwyyFNTvEsZZo5fRLiOVt98ERKqk-NRQ4T2sa837H-tknc9IgRa9tjPb2oR_6Bq8JgI_GSlIY_-4OpQUXlytOUxWN5376wHw","text":"超愛"},"webhookEventId":"01J52693KKQ6FSAKDKC7Q2M4GM","deliveryContext":{"isRedelivery":false},"timestamp":1723429326120,"source":{"type":"user","userId":"U897c15e0aace9a1f6e76d073b899461a"},"replyToken":"6d5fd1be9b384eb9b4a3617a80326e13","mode":"active"}]}
+    api_key = keys["OPENAI_API_KEY"]
+    response = chat_with_chatgpt(user_id ,user_message, api_key )
 
     with ApiClient(configuration) as api_client:
         line_bot_api = MessagingApi(api_client)
