@@ -14,8 +14,9 @@ def get_cities_weather(cwa_api_key: str, locations_name:list):
     header = {
         'Accept':'application/json'    
     }
+    #parsmeters放參數
     parsmeters = { 
-        'Authorization':cwa_api_key,
+        'Authorization':cwa_api_key,   
         'locationName':locations_name   
     }
     url = 'https://opendata.cwa.gov.tw/api/v1/rest/datastore/F-C0032-001'
@@ -27,12 +28,12 @@ def get_cities_weather(cwa_api_key: str, locations_name:list):
         print("Requests Fail")
 #pprint(weather_data['records']['location'])
 
-    cities_weather = dict()
+    cities_weather = dict() #={}
     #每一個location
     for location in weather_data['records']['location']:
         print(location['locationName'])#城市名稱
         city_name = location['locationName']
-        city_weather = get_city_weather(location)
+        city_weather = get_city_weather(location)#每個城市的資料
         cities_weather[city_name] = city_weather
     return cities_weather    
 

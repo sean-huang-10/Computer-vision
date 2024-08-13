@@ -25,6 +25,8 @@ from linebot.v3.webhooks import (
 from handle_keys import get_secret_and_token
 from openai_api import chat_with_chatgpt
 import os,sys
+from cwa_opendata_scraper import get_cities_weather
+
 app = Flask(__name__)
 keys = get_secret_and_token()
 
@@ -69,8 +71,35 @@ def handle_message(event):
    # print("User ID",user_id)
     user_message = event.message.text #使用者傳的訊息{"destination":"Uc474244ed30fb68a4a346524b727e811","events":[{"type":"message","message":{"type":"text","id":"521097010611749041","quoteToken":"UMQ2xwhuefnKBNM5KpYA9Ku76ehiAqzvpguZvvJOtv_69nPiliF_5ezwyyFNTvEsZZo5fRLiOVt98ERKqk-NRQ4T2sa837H-tknc9IgRa9tjPb2oR_6Bq8JgI_GSlIY_-4OpQUXlytOUxWN5376wHw","text":"超愛"},"webhookEventId":"01J52693KKQ6FSAKDKC7Q2M4GM","deliveryContext":{"isRedelivery":false},"timestamp":1723429326120,"source":{"type":"user","userId":"U897c15e0aace9a1f6e76d073b899461a"},"replyToken":"6d5fd1be9b384eb9b4a3617a80326e13","mode":"active"}]}
     api_key = keys["OPENAI_API_KEY"]
-    response = chat_with_chatgpt(user_id ,user_message, api_key )
-
+    
+    #假定的格式: 天氣如何 臺中市 桃園市 彰化市
+    if '天氣如何' in user_message:
+        #問天氣
+        cwa_api_key = keys['CWA_API_KEY']
+        locations_name = user_message.split()[1:]
+        if locations_name: #有地點才做事
+            weather_data = get_cities_weather(cwa_api_key, locations_name)
+            
+            response = ""
+            for location in weather_data:  #取得每一個縣市的名稱
+                response += f"{location} :\n" #加入縣市名稱訊息到response
+                for weather_key in  sorted(weather_data[location]): #根據縣市名稱，取得縣市天氣資料
+                    response += f"{weather_key}:{weather_data[location][weather_key]}\n" 
+            response = response.strip()
+            response = chat_with_chatgpt(
+                user_id ,response, api_key, 
+                extra_prompt="請你幫我生出一段報導，根據前面的天氣資訊，建議使用者穿搭等等，每個縣市分段，200字以內" )
+        #台中市:
+        #       xxx:aaa
+        #       yyy:bbb
+        #       zzz:ccc
+        else:    
+        #閒聊
+            response = "請給我你想知道的縣市，請輸入:天氣如何 臺中市 桃園市 彰化市"
+    else:
+        # 閒聊
+        response = chat_with_chatgpt(user_id, user_message, api_key)
+    
     with ApiClient(configuration) as api_client:
         line_bot_api = MessagingApi(api_client)
         line_bot_api.reply_message_with_http_info(

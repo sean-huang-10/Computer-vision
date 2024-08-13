@@ -19,7 +19,7 @@ from pprint import pprint
 
 
 chat_history = dict()
-def chat_with_chatgpt(user_id, user_message, openai_api_key):  
+def chat_with_chatgpt(user_id, user_message, openai_api_key, extra_prompt=""):  
     client = OpenAI(api_key=openai_api_key)
     
     #把使用者傳的訊息，加到對話紀錄裡
@@ -33,7 +33,7 @@ def chat_with_chatgpt(user_id, user_message, openai_api_key):
         )
     else:
         chat_history[user_id] = [{"role": "user","content": user_message }]
-    message = user_message + '請用有感情的方式回答一句話就好'
+    message = user_message + extra_prompt
 #完成一段對話
     chat_completion = client.chat.completions.create(
         messages=chat_history[user_id][:1]+[{"role": "user","content": user_message }],
